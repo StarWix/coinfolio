@@ -19,13 +19,13 @@ public class ProviderService {
                            final List<Provider> providers) {
         this.providerConfigRepository = providerConfigRepository;
         this.providerImplementations = providers.stream()
-                .collect(Collectors.toMap(Provider::getType, x -> x));
+                .collect(Collectors.toMap(Provider::getSource, x -> x));
     }
 
     public List<ConfiguredProvider> findAll() {
         final List<ProviderConfig> providerConfigs = providerConfigRepository.findAll();
         return providerConfigs.stream()
-                .map(config -> new ConfiguredProvider(config, providerImplementations.get(config.getType())))
+                .map(config -> new ConfiguredProvider(config, providerImplementations.get(config.getSource())))
                 .filter(provider -> provider.implementation() != null) // TODO: warnings if provider is missing
                 .toList();
     }

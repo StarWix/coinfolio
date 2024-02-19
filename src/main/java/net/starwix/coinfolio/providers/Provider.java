@@ -9,7 +9,7 @@ import java.time.Instant;
 import java.util.List;
 
 public interface Provider {
-    String getType();
+    String getSource();
     List<Account> findAccounts(final ProviderConfig config);
     List<Transaction> findTransactions(final ProviderConfig config, @Nullable Instant startDate); // provider должен возвращать транзакции по возрастанию.
 }

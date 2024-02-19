@@ -1,6 +1,7 @@
 package net.starwix.coinfolio.services;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import net.starwix.coinfolio.entities.ConfiguredProvider;
 import net.starwix.coinfolio.entities.Transaction;
 import net.starwix.coinfolio.entities.TransactionStatus;
@@ -12,17 +13,19 @@ import java.util.List;
 
 @AllArgsConstructor
 @Service
+@Log4j2
 public class TransactionService {
     private final ProviderService providerService;
     private final TransactionRepository transactionRepository;
 
     public void pull() {
+        log.info("Pull called");
         final List<ConfiguredProvider> providers = providerService.findAll();
         for (final var provider : providers) {
             final var lastCompletedTransaction =
-                    transactionRepository.findTop1ByProviderAndStatusOrderByCreatedAtDesc(provider.config(), TransactionStatus.COMPLETED);
+                    transactionRepository.findTop1ById_ProviderConfigIdAndStatusOrderByCreatedAtDesc(provider.config().getId(), TransactionStatus.COMPLETED);
             final var firstProcessingTransaction =
-                    transactionRepository.findTop1ByProviderAndStatusOrderByCreatedAtAsc(provider.config(), TransactionStatus.PROCESSING);
+                    transactionRepository.findTop1ById_ProviderConfigIdAndStatusOrderByCreatedAtAsc(provider.config().getId(), TransactionStatus.PROCESSING);
 
             Instant lastDate = firstProcessingTransaction.isPresent()
                     ? firstProcessingTransaction.get().getCreatedAt()

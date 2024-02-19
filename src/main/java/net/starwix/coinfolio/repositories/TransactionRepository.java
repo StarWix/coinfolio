@@ -1,14 +1,14 @@
 package net.starwix.coinfolio.repositories;
 
-import net.starwix.coinfolio.entities.ProviderConfig;
 import net.starwix.coinfolio.entities.Transaction;
 import net.starwix.coinfolio.entities.TransactionStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface TransactionRepository {
-    void saveAll(final List<Transaction> transactions);
-    Optional<Transaction> findTop1ByProviderAndStatusOrderByCreatedAtDesc(ProviderConfig providerConfig, TransactionStatus status);
-    Optional<Transaction> findTop1ByProviderAndStatusOrderByCreatedAtAsc(ProviderConfig providerConfig, TransactionStatus status);
+@Repository
+public interface TransactionRepository extends JpaRepository<Transaction, Transaction.Id> {
+    Optional<Transaction> findTop1ById_ProviderConfigIdAndStatusOrderByCreatedAtDesc(int providerConfigId, TransactionStatus status);
+    Optional<Transaction> findTop1ById_ProviderConfigIdAndStatusOrderByCreatedAtAsc(int providerConfigId, TransactionStatus status);
 }
