@@ -2,7 +2,10 @@ package net.starwix.coinfolio.entities;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -11,6 +14,8 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "\"transaction\"")
+@SuperBuilder
+@NoArgsConstructor
 public class Transaction {
     @EmbeddedId
     private Id id;
@@ -25,15 +30,30 @@ public class Transaction {
 
     private String note;
 
-    private String childProviderConfigSource;
-    private String childId;
-    @Nullable
-    private Integer childProviderConfigId;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name="providerSource", column=@Column(name="child_provider_source")),
+            @AttributeOverride(name="transactionId", column=@Column(name="child_transaction_id")),
+            @AttributeOverride(name="providerConfigId", column=@Column(name="child_provider_config_id"))
+    })
+    private Id childId;
 
     @Data
     @Embeddable
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class Id implements Serializable {
-        private int providerConfigId;
-        private String id;
+        public Id(final String providerSource, final String transactionId) {
+            this.providerSource = providerSource;
+            this.transactionId = transactionId;
+        }
+
+        private String providerSource;
+        private String transactionId;
+        /**
+         * May be nullable only for childId.
+         */
+        @Nullable
+        private Integer providerConfigId;
     }
 }

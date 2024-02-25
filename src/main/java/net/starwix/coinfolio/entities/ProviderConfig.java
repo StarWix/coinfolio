@@ -8,6 +8,7 @@ import java.util.Map;
 @Entity
 public class ProviderConfig {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String source;
     private String name;

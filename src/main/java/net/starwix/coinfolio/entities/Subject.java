@@ -3,6 +3,7 @@ package net.starwix.coinfolio.entities;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * A Subject could be either a Provider or an account.
@@ -12,10 +13,29 @@ import lombok.Data;
  */
 @Data
 @Embeddable
+@NoArgsConstructor
 public class Subject {
-    @Nullable
-    private String id; // must be unique
+    public Subject(final String providerConfigSource) {
+        this.providerConfigSource = providerConfigSource;
+    }
+
+    public Subject(final String providerConfigSource, final String accountId) {
+        this.providerConfigSource = providerConfigSource;
+        this.accountId = accountId;
+    }
+
+    public Subject(final String providerConfigSource, final String accountId, final Integer providerConfigId) {
+        this.providerConfigSource = providerConfigSource;
+        this.accountId = accountId;
+        this.providerConfigId = providerConfigId;
+    }
+
     private String providerConfigSource;
+    /**
+     * Must be unique.
+     */
     @Nullable
-    private String providerConfigId;
+    private String accountId;
+    @Nullable
+    private Integer providerConfigId;
 }
