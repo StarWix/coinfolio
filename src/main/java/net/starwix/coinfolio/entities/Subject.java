@@ -5,6 +5,8 @@ import jakarta.persistence.Embeddable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 /**
  * A Subject could be either a Provider or an account.
  *
@@ -14,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Embeddable
 @NoArgsConstructor
-public class Subject {
+public class Subject implements Serializable {
     public Subject(final String providerConfigSource) {
         this.providerConfigSource = providerConfigSource;
     }

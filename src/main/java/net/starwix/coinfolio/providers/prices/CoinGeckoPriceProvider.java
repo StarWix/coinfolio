@@ -23,19 +23,31 @@ public class CoinGeckoPriceProvider implements PriceProvider {
         client.ping();
         idBySymbol = client.getCoinList().stream()
                 .collect(Collectors.toMap(CoinList::getSymbol, CoinList::getId, (s, s2) -> s));
+        idBySymbol.put("usdt", "tether");
     }
 
     @Override
-    public List<Price> findPrices(Instant startDate, Instant endDate, String assetSymbol, String currencySymbol) {
-        final String id = idBySymbol.get(assetSymbol);
-        return client.getCoinMarketChartById(id, currencySymbol, 10_000, "daily").getPrices().stream()
+    public List<String> findCurrencySymbols() {
+        return client.getSupportedVsCurrencies().stream().map(String::toUpperCase).toList();
+    }
+
+    @Override
+    public List<Price> findPrices(final Instant startDate,
+                                  final Instant endDate,
+                                  final String assetSymbol,
+                                  final String currencySymbol) {
+        final String id = idBySymbol.get(assetSymbol.toLowerCase());
+        if (id == null) {
+            throw new IllegalArgumentException(String.format("AssetSymbol %s is not found", assetSymbol));
+        }
+        return client.getCoinMarketChartById(id, currencySymbol.toLowerCase(), 10_000, "daily").getPrices().stream()
                 .map(x -> new Price(
                         assetSymbol,
                         Instant.ofEpochMilli(Long.parseLong(x.get(0))),
                         currencySymbol,
                         new BigDecimal(x.get(1))
                 ))
-                .filter(x -> !x.getDate().isBefore(startDate) && x.getDate().isBefore(endDate))
+                .filter(x -> !x.getDate().isBefore(startDate) && !x.getDate().isAfter(endDate))
                 .filter(x -> x.getDate().toEpochMilli() % ChronoUnit.DAYS.getDuration().toMillis() == 0)
                 .toList();
     }

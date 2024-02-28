@@ -17,7 +17,7 @@ public class DummyProvider implements Provider {
     public DummyProvider(final ProviderConfig config) {
         this.config = config;
 
-        final BigDecimal btcAmount = BigDecimal.valueOf(10_000 / 44187).setScale(8, RoundingMode.HALF_EVEN);
+        final BigDecimal btcAmount = BigDecimal.valueOf(10_000. / 44187).setScale(8, RoundingMode.HALF_EVEN);
         transactions = List.of(
                 Transaction.builder()
                         .id(new Transaction.Id("dummy", "1", config.getId()))
