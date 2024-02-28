@@ -25,7 +25,7 @@ public class Transaction {
     @Enumerated(EnumType.STRING)
     private TransactionStatus status;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction", orphanRemoval = true)
     private List<Action> actions;
 
     private String note;
