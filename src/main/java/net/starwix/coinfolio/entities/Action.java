@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -39,4 +40,25 @@ public class Action {
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)
     private ActionType type;
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Action action = (Action) o;
+        return Objects.equals(transaction.getId(), action.transaction.getId())
+                && Objects.equals(sender, action.sender)
+                && Objects.equals(recipient, action.recipient)
+                && Objects.equals(assetSymbol, action.assetSymbol)
+                && type == action.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(transaction.getId(), sender, recipient, assetSymbol, type);
+    }
 }
