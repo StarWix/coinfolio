@@ -20,6 +20,8 @@ public class Action {
     @ManyToOne
     private Transaction transaction;
 
+    private String accountId;
+
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name="providerConfigSource", column=@Column(name="sender_provider_config_source")),
@@ -37,6 +39,10 @@ public class Action {
     private Subject recipient;
 
     private String assetSymbol;
+
+    /**
+     * Must be positive if recipient equals transaction.accountId. Otherwise negative
+     */
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)
     private ActionType type;
