@@ -1,8 +1,8 @@
 package net.starwix.coinfolio.providers;
 
-import net.starwix.coinfolio.entities.ProviderConfig;
+import net.starwix.coinfolio.models.ReadonlyProviderConfig;
 
 public interface ProviderFactory {
     String getSource();
-    Provider create(ProviderConfig config);
+    Provider<?> create(ReadonlyProviderConfig config);
 }

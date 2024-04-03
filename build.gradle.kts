@@ -38,7 +38,9 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.44.1.0")
     implementation("org.hibernate.orm:hibernate-community-dialects:6.4.4.Final")
 
-    implementation ("net.osslabz:coingecko-java:1.0.0")
+    implementation("net.osslabz:coingecko-java:1.0.0")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

@@ -1,6 +1,10 @@
 package net.starwix.coinfolio.providers.dummy;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import net.starwix.coinfolio.entities.*;
+import net.starwix.coinfolio.models.ReadonlyProviderConfig;
 import net.starwix.coinfolio.providers.Provider;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,11 +14,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DummyProvider implements Provider {
-    private final ProviderConfig config;
+public class DummyProvider implements Provider<DummyProvider.Meta> {
+    private final ReadonlyProviderConfig config;
     private final List<Transaction> transactions;
 
-    public DummyProvider(final ProviderConfig config) {
+    public DummyProvider(final ReadonlyProviderConfig config) {
         this.config = config;
 
         final BigDecimal btcAmount = BigDecimal.valueOf(10_000. / 44187).setScale(8, RoundingMode.HALF_EVEN);
@@ -113,14 +117,36 @@ public class DummyProvider implements Provider {
         return List.of();
     }
 
+
     @Override
-    public List<Transaction> findTransactions(@Nullable Instant startDate) {
-        if (startDate == null) {
-            return transactions.subList(0, 2);
+    public Direction getDirection() {
+        return Direction.ASC;
+    }
+
+    @Override
+    public Class<Meta> getMetaClass() {
+        return Meta.class;
+    }
+
+    @Override
+    public TransactionList<Meta> findTransactions(@Nullable Meta meta) {
+        final List<Transaction> resultTransactions;
+        if (meta == null) {
+            resultTransactions = transactions.subList(0, 2);
+        } else {
+            resultTransactions = transactions.stream()
+                    .filter(transaction -> !transaction.getCreatedAt().isBefore(meta.getInstant()))
+                    .limit(2)
+                    .collect(Collectors.toList());
         }
-        return transactions.stream()
-                .filter(transaction -> !transaction.getCreatedAt().isBefore(startDate))
-                .limit(2)
-                .collect(Collectors.toList());
+        final Meta resultMeta = resultTransactions.isEmpty() ? null : new Meta(transactions.getLast().getCreatedAt().plusMillis(1));
+        return new TransactionList<>(resultTransactions, resultMeta);
+    }
+
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Meta {
+        private Instant instant;
     }
 }

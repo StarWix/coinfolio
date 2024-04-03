@@ -1,6 +1,6 @@
 package net.starwix.coinfolio.providers.dummy;
 
-import net.starwix.coinfolio.entities.ProviderConfig;
+import net.starwix.coinfolio.models.ReadonlyProviderConfig;
 import net.starwix.coinfolio.providers.Provider;
 import net.starwix.coinfolio.providers.ProviderFactory;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ public class DummyProviderFactory implements ProviderFactory {
     }
 
     @Override
-    public Provider create(final ProviderConfig config) {
+    public Provider create(final ReadonlyProviderConfig config) {
         return new DummyProvider(config);
     }
 }

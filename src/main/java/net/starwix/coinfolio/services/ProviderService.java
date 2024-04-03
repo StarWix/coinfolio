@@ -6,6 +6,7 @@ import net.starwix.coinfolio.providers.ProviderFactory;
 import net.starwix.coinfolio.repositories.ProviderConfigRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -23,9 +24,9 @@ public class ProviderService {
                 .collect(Collectors.toMap(ProviderFactory::getSource, x -> x));
     }
 
-    public List<Provider> findAll() {
+    public List<Provider<?>> findAll() {
         final List<ProviderConfig> providerConfigs = providerConfigRepository.findAll();
-        return providerConfigs.stream()
+        final List<? extends Provider<?>> providers = providerConfigs.stream()
                 .map(config -> {
                     final var factory = providerFactoriesBySource.get(config.getSource());
                     if (factory == null) {
@@ -35,5 +36,6 @@ public class ProviderService {
                 })
                 .filter(Objects::nonNull) // TODO: warnings if provider is missing
                 .toList();
+        return new ArrayList<>(providers);
     }
 }

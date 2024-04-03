@@ -1,6 +1,5 @@
 package net.starwix.coinfolio.repositories;
 
-import net.starwix.coinfolio.entities.Asset;
 import net.starwix.coinfolio.entities.Transaction;
 import net.starwix.coinfolio.entities.TransactionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
