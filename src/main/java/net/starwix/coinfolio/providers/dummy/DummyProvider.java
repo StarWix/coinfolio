@@ -11,18 +11,21 @@ import org.jetbrains.annotations.Nullable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class DummyProvider implements Provider<DummyProvider.Meta> {
     private final ReadonlyProviderConfig config;
     private final List<Transaction> transactions;
+    private final Direction direction;
 
     public DummyProvider(final ReadonlyProviderConfig config) {
         this.config = config;
+        direction = Direction.valueOf(config.getProperties().getOrDefault("direction", "ASC"));
 
         final BigDecimal btcAmount = BigDecimal.valueOf(10_000. / 44187).setScale(8, RoundingMode.HALF_EVEN);
-        transactions = List.of(
+        final var transactions = List.of(
                 Transaction.builder()
                         .id(new Transaction.Id("dummy", "1", config.getId()))
                         .actions(List.of(
@@ -105,6 +108,13 @@ public class DummyProvider implements Provider<DummyProvider.Meta> {
                         .note("Sell bitcoin")
                         .build()
         );
+        if (direction == Direction.DESC) {
+            this.transactions = transactions.stream()
+                    .sorted(Comparator.comparing(Transaction::getCreatedAt).reversed())
+                    .collect(Collectors.toList());
+        } else {
+            this.transactions = transactions;
+        }
     }
 
     @Override
@@ -114,13 +124,13 @@ public class DummyProvider implements Provider<DummyProvider.Meta> {
 
     @Override
     public List<Account> findAccounts() {
-        return List.of();
+        throw new UnsupportedOperationException("findAccounts");
     }
 
 
     @Override
     public Direction getDirection() {
-        return Direction.ASC;
+        return direction;
     }
 
     @Override
@@ -135,11 +145,11 @@ public class DummyProvider implements Provider<DummyProvider.Meta> {
             resultTransactions = transactions.subList(0, 2);
         } else {
             resultTransactions = transactions.stream()
-                    .filter(transaction -> !transaction.getCreatedAt().isBefore(meta.getInstant()))
+                    .filter(transaction -> direction == Direction.ASC ? !transaction.getCreatedAt().isBefore(meta.getInstant()): !transaction.getCreatedAt().isAfter(meta.getInstant()))
                     .limit(2)
                     .collect(Collectors.toList());
         }
-        final Meta resultMeta = resultTransactions.isEmpty() ? null : new Meta(transactions.getLast().getCreatedAt().plusMillis(1));
+        final Meta resultMeta = resultTransactions.isEmpty() ? null : new Meta(resultTransactions.getLast().getCreatedAt().plusMillis(direction == Direction.ASC ? 1 : -1));
         return new TransactionList<>(resultTransactions, resultMeta);
     }
 
