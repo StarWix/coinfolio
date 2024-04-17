@@ -3,6 +3,7 @@ plugins {
     idea
     id("org.springframework.boot") version "3.2.2"
     id("io.spring.dependency-management") version "1.1.4"
+    id("org.openapi.generator") version "7.4.0"
 }
 
 idea {
@@ -33,6 +34,7 @@ dependencies {
     implementation("org.jetbrains:annotations:24.1.0")
 
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.xerial:sqlite-jdbc:3.44.1.0")
@@ -40,7 +42,8 @@ dependencies {
 
     implementation("net.osslabz:coingecko-java:1.0.0")
 
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("com.google.code.findbugs:jsr305:3.0.2")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
@@ -52,3 +55,27 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+openApiGenerate {
+    generatorName = "java"
+    inputSpec = "$projectDir/swagger/blockscout/swagger.yaml"
+    outputDir = "$buildDir/generated/"
+    apiPackage = "net.starwix.blockscount.client.api"
+    modelPackage = "net.starwix.blockscount.model.api"
+    library = "resttemplate"
+
+    skipValidateSpec = true
+    skipOperationExample = true
+    configOptions = mapOf(
+            "openApiNullable" to "false"
+    )
+}
+
+configure<SourceSetContainer> {
+    named("main") {
+        java.srcDir("$buildDir/generated/src/main/java")
+    }
+}
+
+tasks.compileJava {
+    dependsOn("openApiGenerate")
+}
