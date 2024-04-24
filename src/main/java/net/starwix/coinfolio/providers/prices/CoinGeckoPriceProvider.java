@@ -1,7 +1,6 @@
 package net.starwix.coinfolio.providers.prices;
 
 import com.litesoftwares.coingecko.CoinGeckoApiClient;
-import com.litesoftwares.coingecko.domain.Coins.CoinList;
 import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
 import net.starwix.coinfolio.entities.Price;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class CoinGeckoPriceProvider implements PriceProvider {
@@ -25,6 +23,7 @@ public class CoinGeckoPriceProvider implements PriceProvider {
 //                .collect(Collectors.toMap(CoinList::getSymbol, CoinList::getId, (s, s2) -> s));
         idBySymbol = new HashMap<>();
         idBySymbol.put("usdt", "tether");
+        idBySymbol.put("usdc", "USDC");
         idBySymbol.put("btc", "bitcoin");
         idBySymbol.put("eth", "ethereum");
     }

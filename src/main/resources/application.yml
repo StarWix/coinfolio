@@ -7,3 +7,5 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  main:
+    web-application-type: none

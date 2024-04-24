@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum TransactionStatus {
     COMPLETED(true),
     PROCESSING(false),
-    CANCELED(true);
+    CANCELED(true),
+    ERROR(true);
 
     private final boolean terminated;
 }
