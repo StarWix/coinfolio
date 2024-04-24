@@ -16,7 +16,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
-public class OverviewService {
+public class PortfolioService {
     private final PriceRepository priceRepository;
     private final TransactionRepository transactionRepository;
 
