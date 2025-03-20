@@ -28,7 +28,7 @@ public class TransactionService {
         final List<Fetcher<?>> fetchers = fetcherService.findAll();
         for (final var fetcher : fetchers) {
             final FetcherState fetcherState = metaRepository.findById(new FetcherState.Id(fetcher.getProviderConfigId(), fetcher.getType()))
-                    .orElseThrow(() -> new IllegalStateException("ProviderId: " + fetcher.getProviderConfigId()));
+                    .orElseGet(() -> new FetcherState(fetcher.getProviderConfigId(), fetcher.getType(), null));
             if (fetcher.getDirection() == Fetcher.Direction.ASC) {
                 processTransactionsAsc(fetcher, fetcherState);
             } else if (fetcher.getDirection() == Fetcher.Direction.DESC) {
