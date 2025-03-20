@@ -21,13 +21,13 @@ public class PriceService {
     private final PriceRepository priceRepository;
     private final ActionRepository actionRepository;
 
-    public void pull(final String currencySymbol) {
+    public void pull(final String currencySymbol, final ChronoUnit timeframe) {
         final List<String> assetSymbols = actionRepository.findDistinctAssetSymbol();
-        final Instant now = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        final Instant now = Instant.now().truncatedTo(timeframe);
         for (final String assetSymbol : assetSymbols) {
             final Optional<Price> lastPrice =
-                    priceRepository.findTop1ByAssetSymbolAndCurrencySymbolOrderByDateDesc(assetSymbol, currencySymbol);
-            final Instant lastPriceDate = lastPrice.map(Price::getDate).orElse(Instant.MIN);
+                    priceRepository.findTop1ByCurrencySymbolAndTimeframeAndAssetSymbolOrderByOpenTimestampDesc(currencySymbol, timeframe, assetSymbol);
+            final Instant lastPriceDate = lastPrice.map(Price::getOpenTimestamp).orElse(Instant.MIN);
             if (lastPriceDate.truncatedTo(ChronoUnit.DAYS).equals(now)) {
                 log.info("Prices were already cached. AssetSymbol: {}, CurrencySymbol: {}", assetSymbol, currencySymbol);
                 continue;

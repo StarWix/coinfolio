@@ -21,11 +21,11 @@ public class PortfolioService {
     private final TransactionRepository transactionRepository;
 
     @Transactional
-    public List<Statistic> overview(final String currencyAsset) {
-        final Iterable<Price> prices = priceRepository.findByCurrencySymbolOrderByDateAsc(currencyAsset);
+    public List<Statistic> overview(final String currencyAsset, final ChronoUnit timeframe) {
+        final Iterable<Price> prices = priceRepository.findByCurrencySymbolAndTimeframeOrderByOpenTimestampAsc(currencyAsset, timeframe);
         final Iterable<Transaction> transactions = transactionRepository.findAllByOrderByCreatedAtAsc();
 
-        final Calculator calculator = new Calculator(prices.iterator(), transactions.iterator());
+        final Calculator calculator = new Calculator(prices.iterator(), transactions.iterator(), timeframe);
         return calculator.calc();
     }
 
@@ -34,14 +34,17 @@ public class PortfolioService {
         private final Map<String, BigDecimal> priceBySymbol = new HashMap<>();
         private final Iterator<Price> priceIt;
         private final Iterator<Transaction> transactionIt;
+        private final ChronoUnit timeframe;
 
         private Price price;
-        private Instant date;
+        private Instant currentOpenTimestamp;
 
         public Calculator(final Iterator<Price> priceIt,
-                          final Iterator<Transaction> transactionIt) {
+                          final Iterator<Transaction> transactionIt,
+                          final ChronoUnit timeframe) {
             this.priceIt = priceIt;
             this.transactionIt = transactionIt;
+            this.timeframe = timeframe;
         }
 
         private List<Statistic> calc() {
@@ -50,13 +53,15 @@ public class PortfolioService {
             }
             price = priceIt.next();
             Transaction transaction = transactionIt.next();
-            date = transaction.getCreatedAt().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
+            currentOpenTimestamp = transaction.getCreatedAt().truncatedTo(timeframe);
             updatePrices();
 
             final List<Statistic> statistics = new ArrayList<>();
             while (transaction != null) {
-                while (!date.isAfter(transaction.getCreatedAt())) {
+                while (!transaction.getCreatedAt().isBefore(currentOpenTimestamp.plus(1, timeframe))) {
                     statistics.add(calcStatistic());
+                    currentOpenTimestamp = currentOpenTimestamp.plus(1, timeframe);
+                    updatePrices();
                 }
                 for (final var action : transaction.getActions()) {
                     amountBySymbol.merge(action.getAssetSymbol(), action.getAmount(), BigDecimal::add);
@@ -64,8 +69,10 @@ public class PortfolioService {
                 transaction = transactionIt.hasNext() ? transactionIt.next() : null;
             }
             final Instant now = Instant.now();
-            while (!date.isAfter(now)) {
+            while (!currentOpenTimestamp.isAfter(now)) {
                 statistics.add(calcStatistic());
+                currentOpenTimestamp = currentOpenTimestamp.plus(1, timeframe);
+                updatePrices();
             }
             return statistics;
         }
@@ -75,15 +82,12 @@ public class PortfolioService {
                 BigDecimal amount = amountBySymbol.getOrDefault(entry.getKey(), BigDecimal.ZERO);
                 return entry.getValue().multiply(amount);
             }).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
-            final Statistic statistic = new Statistic(date, total);
-            date = date.plus(1, ChronoUnit.DAYS);
-            updatePrices();
-            return statistic;
+            return new Statistic(currentOpenTimestamp, total);
         }
 
         private void updatePrices() {
-            while (!price.getDate().isAfter(date)) {
-                priceBySymbol.put(price.getAssetSymbol(), price.getPrice());
+            while (!price.getOpenTimestamp().isAfter(currentOpenTimestamp)) {
+                priceBySymbol.put(price.getAssetSymbol(), price.getClosePrice());
                 if (!priceIt.hasNext()) {
                     break;
                 }

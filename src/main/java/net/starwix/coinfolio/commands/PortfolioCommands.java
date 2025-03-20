@@ -8,6 +8,7 @@ import org.springframework.shell.standard.ShellOption;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.stream.Collectors;
 
 @ShellComponent()
@@ -16,8 +17,9 @@ public class PortfolioCommands {
     private final PortfolioService portfolioService;
 
     @ShellMethod(key = "portfolio overview")
-    public String overview(final @ShellOption(defaultValue = "USD") String symbol) {
-        return portfolioService.overview(symbol).stream()
+    public String overview(final @ShellOption(defaultValue = "USD") String symbol,
+                           final @ShellOption(defaultValue = "DAYS") ChronoUnit timeframe) {
+        return portfolioService.overview(symbol, timeframe).stream()
                 .map(statistic -> String.format(
                         "%10s: %20.8f",
                         DateTimeFormatter.ISO_DATE.format(statistic.date().atOffset(ZoneOffset.UTC)),

@@ -44,13 +44,14 @@ public class CoinGeckoPriceProvider implements PriceProvider {
         }
         return client.getCoinMarketChartById(id, currencySymbol.toLowerCase(), 365, "daily").getPrices().stream()
                 .map(x -> new Price(
-                        assetSymbol,
-                        Instant.ofEpochMilli(Long.parseLong(x.get(0))),
                         currencySymbol,
+                        ChronoUnit.DAYS,
+                        assetSymbol,
+                        Instant.ofEpochMilli(Long.parseLong(x.get(0))).minus(1, ChronoUnit.DAYS),
                         new BigDecimal(x.get(1))
                 ))
-                .filter(x -> !x.getDate().isBefore(startDate) && !x.getDate().isAfter(endDate))
-                .filter(x -> x.getDate().toEpochMilli() % ChronoUnit.DAYS.getDuration().toMillis() == 0)
+                .filter(x -> !x.getOpenTimestamp().isBefore(startDate) && !x.getOpenTimestamp().isAfter(endDate))
+                .filter(x -> x.getOpenTimestamp().toEpochMilli() % ChronoUnit.DAYS.getDuration().toMillis() == 0)
                 .toList();
     }
 }

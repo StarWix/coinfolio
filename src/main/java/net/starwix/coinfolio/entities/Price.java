@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Data
 @Entity
@@ -17,19 +18,22 @@ import java.time.Instant;
 @AllArgsConstructor
 public class Price {
     @jakarta.persistence.Id
+    private String currencySymbol;
+    @jakarta.persistence.Id
+    private ChronoUnit timeframe;
+    @jakarta.persistence.Id
     private String assetSymbol;
     @jakarta.persistence.Id
-    private Instant date;
-    @jakarta.persistence.Id
-    private String currencySymbol;
-    private BigDecimal price;
+    private Instant openTimestamp;
+    private BigDecimal closePrice;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Id implements Serializable {
         private String assetSymbol;
-        private Instant date;
+        private ChronoUnit timeframe;
         private String currencySymbol;
+        private Instant openTimestamp;
     }
 }
