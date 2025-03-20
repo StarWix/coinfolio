@@ -1,9 +1,9 @@
 plugins {
     java
     idea
-    id("org.springframework.boot") version "3.2.2"
-    id("io.spring.dependency-management") version "1.1.4"
-    id("org.openapi.generator") version "7.4.0"
+    id("org.springframework.boot") version "3.4.3"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("org.openapi.generator") version "7.12.0"
 }
 
 idea {
@@ -30,21 +30,21 @@ repositories {
     mavenCentral()
 }
 
-val xchangeVersion = "5.1.1"
+val xchangeVersion = "5.2.1"
 
 dependencies {
     implementation("org.jetbrains:annotations:24.1.0")
 
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("org.springframework.shell:spring-shell-starter:3.2.4")
+    implementation("org.springframework.shell:spring-shell-starter:3.4.0")
 
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.xerial:sqlite-jdbc:3.44.1.0")
-    implementation("org.hibernate.orm:hibernate-community-dialects:6.4.4.Final")
+    implementation("org.xerial:sqlite-jdbc:3.49.1.0")
+    implementation("org.hibernate.orm:hibernate-community-dialects:6.6.11.Final")
 
     // price provider
-    implementation("net.osslabz:coingecko-java:1.0.0")
+    implementation("net.osslabz:coingecko-java:1.2.0")
 
     // providers
     implementation("org.knowm.xchange:xchange-core:$xchangeVersion")
