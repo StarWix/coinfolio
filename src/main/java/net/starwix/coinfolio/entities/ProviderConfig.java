@@ -2,19 +2,22 @@ package net.starwix.coinfolio.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import net.starwix.coinfolio.models.ReadonlyProviderConfig;
 
 import java.util.Map;
 
 @Data
 @Entity
+@NoArgsConstructor
+@SuperBuilder
 public class ProviderConfig implements ReadonlyProviderConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String source;
     private String name;
-    private String lastMeta;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "provider_config_properties", joinColumns = @JoinColumn(name = "provider_config_id"))

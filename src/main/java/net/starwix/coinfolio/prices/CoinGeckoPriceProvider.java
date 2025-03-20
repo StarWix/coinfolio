@@ -1,4 +1,4 @@
-package net.starwix.coinfolio.providers.prices;
+package net.starwix.coinfolio.prices;
 
 import com.litesoftwares.coingecko.CoinGeckoApiClient;
 import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
