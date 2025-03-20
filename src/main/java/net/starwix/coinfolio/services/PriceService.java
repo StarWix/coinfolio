@@ -2,9 +2,8 @@ package net.starwix.coinfolio.services;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import lombok.extern.slf4j.Slf4j;
 import net.starwix.coinfolio.entities.Price;
-import net.starwix.coinfolio.providers.prices.PriceProvider;
+import net.starwix.coinfolio.prices.PriceProvider;
 import net.starwix.coinfolio.repositories.ActionRepository;
 import net.starwix.coinfolio.repositories.PriceRepository;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package net.starwix.coinfolio.providers.prices;
+package net.starwix.coinfolio.prices;
 
 import net.starwix.coinfolio.entities.Price;
 

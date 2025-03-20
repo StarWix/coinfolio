@@ -7,29 +7,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.Instant;
 
 @Data
 @Entity
-@IdClass(Price.Id.class)
+@IdClass(FetcherState.Id.class)
 @NoArgsConstructor
 @AllArgsConstructor
-public class Price {
+public class FetcherState {
     @jakarta.persistence.Id
-    private String assetSymbol;
+    private int providerConfigId;
     @jakarta.persistence.Id
-    private Instant date;
-    @jakarta.persistence.Id
-    private String currencySymbol;
-    private BigDecimal price;
+    private String fetcherType;
+    private String meta;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Id implements Serializable {
-        private String assetSymbol;
-        private Instant date;
-        private String currencySymbol;
+        private int providerConfigId;
+        private String fetcherType;
     }
 }

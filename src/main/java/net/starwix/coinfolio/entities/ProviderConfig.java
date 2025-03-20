@@ -14,7 +14,6 @@ public class ProviderConfig implements ReadonlyProviderConfig {
     private int id;
     private String source;
     private String name;
-    private String lastMeta;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "provider_config_properties", joinColumns = @JoinColumn(name = "provider_config_id"))

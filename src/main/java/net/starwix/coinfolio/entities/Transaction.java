@@ -43,11 +43,6 @@ public class Transaction {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Id implements Serializable {
-        public Id(final String providerSource, final String transactionId) {
-            this.providerSource = providerSource;
-            this.transactionId = transactionId;
-        }
-
         private String providerSource;
         private String transactionId;
         /**
@@ -55,5 +50,10 @@ public class Transaction {
          */
         @Nullable
         private Integer providerConfigId;
+
+        public Id(final String providerSource, final String transactionId) {
+            this.providerSource = providerSource;
+            this.transactionId = transactionId;
+        }
     }
 }

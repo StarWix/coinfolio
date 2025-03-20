@@ -30,6 +30,8 @@ repositories {
     mavenCentral()
 }
 
+val xchangeVersion = "5.1.1"
+
 dependencies {
     implementation("org.jetbrains:annotations:24.1.0")
 
@@ -41,7 +43,12 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.44.1.0")
     implementation("org.hibernate.orm:hibernate-community-dialects:6.4.4.Final")
 
+    // price provider
     implementation("net.osslabz:coingecko-java:1.0.0")
+
+    // providers
+    implementation("org.knowm.xchange:xchange-core:$xchangeVersion")
+    implementation("org.knowm.xchange:xchange-binance:$xchangeVersion")
 
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
