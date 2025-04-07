@@ -13,7 +13,7 @@ import java.time.temporal.ChronoUnit;
 public class PriceCommands {
     private final PriceService priceService;
 
-    @ShellMethod(key = "prices pull")
+    @ShellMethod(key = "pull prices")
     public void pull(final @ShellOption(defaultValue = "USD") String symbol,
                      final @ShellOption(defaultValue = "DAYS") ChronoUnit timeframe) {
         priceService.pull(symbol, timeframe);

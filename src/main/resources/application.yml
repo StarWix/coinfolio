@@ -9,3 +9,13 @@ spring:
       ddl-auto: update
   main:
     web-application-type: none
+  shell:
+    interactive:
+      enabled: true
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          client:
+            RestTemplate: DEBUG
