@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 public class PortfolioCommands {
     private final PortfolioService portfolioService;
 
-    @ShellMethod(key = "portfolio overview")
-    public String overview(final @ShellOption(defaultValue = "USD") String symbol,
+    @ShellMethod(key = "describe portfolio")
+    public String describe(final @ShellOption(defaultValue = "USD") String symbol,
                            final @ShellOption(defaultValue = "DAYS") ChronoUnit timeframe) {
         return portfolioService.overview(symbol, timeframe).stream()
                 .map(statistic -> String.format(

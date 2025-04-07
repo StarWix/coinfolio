@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 public class EthFetcher implements Fetcher<EthFetcher.Meta> {
@@ -88,7 +89,7 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
                     .recipient(new Subject("eth"))
                     .build());
         }
-        if (transaction.getTxTypes().contains(net.starwix.blockscount.model.api.Transaction.TxTypesEnum.COIN_TRANSFER)) {
+        if (transaction.getTransactionTypes().contains(net.starwix.blockscount.model.api.Transaction.TransactionTypesEnum.COIN_TRANSFER)) {
              actions.add(Action.builder()
                     .type(ActionType.TRANSFER)
                     .accountId(publicKey + ":ETH")
@@ -98,9 +99,12 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
                     .recipient(new Subject("eth", transaction.getTo().getHash(), id))
                     .build());
         }
-        if (transaction.getTxTypes().contains(net.starwix.blockscount.model.api.Transaction.TxTypesEnum.TOKEN_TRANSFER)) {
-            final var transfers = api.getTokenTransfers(transaction.getHash(), null);
-            actions.addAll(transfers.getItems().stream().map(tokenTransfer -> convert(tokenTransfer, isSender)).toList());
+        if (transaction.getTransactionTypes().contains(net.starwix.blockscount.model.api.Transaction.TransactionTypesEnum.TOKEN_TRANSFER)) {
+            final var transfers = api.getTransactionTokenTransfers(transaction.getHash(), null);
+            var tokenActions = transfers.getItems().stream().map(tokenTransfer -> convert(tokenTransfer, isSender))
+                    .filter(Objects::nonNull)
+                    .toList();
+            actions.addAll(tokenActions);
             if (transfers.getNextPageParams() != null) {
                 log.warn("Transaction {} has second page of transfers", transaction.getHash());
             }
@@ -124,6 +128,9 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
     }
 
     private Action convert(final TokenTransfer tokenTransfer, final boolean isSender) {
+        if (tokenTransfer.getTotal().getDecimals() == null) {
+            return null;
+        }
         final int decimals = Integer.parseInt(tokenTransfer.getTotal().getDecimals());
         final BigDecimal amount = new BigDecimal(tokenTransfer.getTotal().getValue()).scaleByPowerOfTen(-decimals);
         return Action.builder()

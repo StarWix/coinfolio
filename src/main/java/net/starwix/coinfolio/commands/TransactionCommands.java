@@ -10,7 +10,7 @@ import org.springframework.shell.standard.ShellMethod;
 public class TransactionCommands {
     private final TransactionService transactionService;
 
-    @ShellMethod(key = "transactions pull")
+    @ShellMethod(key = "pull transactions")
     public void pull() {
         transactionService.pull();
     }
