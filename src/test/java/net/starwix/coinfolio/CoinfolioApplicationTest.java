@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,8 +44,16 @@ class CoinfolioApplicationTest  {
 
     @Test
     void test() {
-        providerConfigRepository.save(ProviderConfig.builder().source("dummy").name("first").build());
-        providerConfigRepository.save(ProviderConfig.builder().source("dummy").name("second").build());
+        providerConfigRepository.save(ProviderConfig.builder()
+                .source("dummy")
+                .name("first")
+                .properties(Map.of("direction", "ASC"))
+                .build());
+        providerConfigRepository.save(ProviderConfig.builder()
+                .source("dummy")
+                .name("second")
+                .properties(Map.of("direction", "DESC"))
+                .build());
 
         transactionService.pull();
         priceService.pull("USD", ChronoUnit.DAYS);
