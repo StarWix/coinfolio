@@ -1,5 +1,6 @@
 package net.starwix.coinfolio.services;
 
+import lombok.extern.slf4j.Slf4j;
 import net.starwix.coinfolio.entities.ProviderConfig;
 import net.starwix.coinfolio.providers.Fetcher;
 import net.starwix.coinfolio.providers.Provider;
@@ -13,6 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class FetcherService {
     private final ProviderConfigRepository providerConfigRepository;
     private final Map<String, Provider> providersBySource;
@@ -28,6 +30,7 @@ public class FetcherService {
         final List<ProviderConfig> providerConfigs = providerConfigRepository.findAll();
         final List<? extends Fetcher<?>> providers = providerConfigs.stream()
                 .flatMap(config -> {
+                    log.info("Creating fetchers for {}", config);
                     final var provider = providersBySource.get(config.getSource());
                     if (provider == null) {
                         return null;
@@ -36,6 +39,7 @@ public class FetcherService {
                 })
                 .filter(Objects::nonNull) // TODO: warnings if provider is missing
                 .toList();
+        log.info("Found {} fetchers", providers.size());
         return new ArrayList<>(providers);
     }
 }

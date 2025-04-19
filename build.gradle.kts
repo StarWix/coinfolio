@@ -30,7 +30,7 @@ repositories {
     mavenCentral()
 }
 
-val xchangeVersion = "5.2.1"
+val xchangeVersion = "5.2.2"
 
 dependencies {
     implementation("org.jetbrains:annotations:24.1.0")
@@ -49,6 +49,9 @@ dependencies {
     // providers
     implementation("org.knowm.xchange:xchange-core:$xchangeVersion")
     implementation("org.knowm.xchange:xchange-binance:$xchangeVersion")
+    implementation("org.knowm.xchange:xchange-huobi:$xchangeVersion") // htx
+    implementation("org.knowm.xchange:xchange-bybit:$xchangeVersion")
+    implementation("org.knowm.xchange:xchange-okex:$xchangeVersion") // okx
 
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
