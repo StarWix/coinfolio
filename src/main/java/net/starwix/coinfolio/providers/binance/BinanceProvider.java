@@ -4,6 +4,7 @@ import net.starwix.coinfolio.models.ReadonlyProviderConfig;
 import net.starwix.coinfolio.providers.Fetcher;
 import net.starwix.coinfolio.providers.Provider;
 import net.starwix.coinfolio.providers.xchange.DateFundingHistoryFetcher;
+import net.starwix.coinfolio.providers.xchange.ProviderHelper;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.dto.account.FundingRecord;
@@ -20,10 +21,11 @@ public class BinanceProvider implements Provider {
 
     @Override
     public List<? extends Fetcher<?>> createFetchers(ReadonlyProviderConfig config) {
-        final var exSpec = new BinanceExchange().getDefaultExchangeSpecification();
-        exSpec.setApiKey(config.getProperty("apiKey"));
-        exSpec.setSecretKey(config.getProperty("secretKey"));
-        final var exchange = ExchangeFactory.INSTANCE.createExchange(exSpec);
+        final var exchangeSpecification = ProviderHelper.toExchangeSpecification(config, BinanceExchange.class);
+        if ("true".equalsIgnoreCase(config.getProperties().get("sandbox"))) {
+            exchangeSpecification.setSslUri(BinanceExchange.SANDBOX_SPOT_URL);
+        }
+        final var exchange = ExchangeFactory.INSTANCE.createExchange(exchangeSpecification);
         final var accountService = exchange.getAccountService();
         return List.of(
                 new DateFundingHistoryFetcher(config, accountService, FundingRecord.Type.DEPOSIT),

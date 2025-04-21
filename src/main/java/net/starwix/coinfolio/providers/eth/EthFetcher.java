@@ -28,7 +28,7 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
 
     public EthFetcher(final ReadonlyProviderConfig config) {
         api = new DefaultApi();
-        publicKey = config.getProperty("publicKey");
+        publicKey = config.getAddress();
         id = config.getId();
         source = config.getSource();
     }
