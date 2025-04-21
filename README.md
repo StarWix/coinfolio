@@ -27,10 +27,10 @@ spring:
 | 1               | some_eth_provider | eth    |
 
 ### Provider Config Properties Table
-| provider_config_properties |            |                                            |
-|----------------------------|------------|--------------------------------------------|
-| provider_config_id         | key        | value                                      |
-| 1                          | publicKey  | 0x12579CeC673809F1c6e83eBE6eC7711882539559 |
+| provider_config_properties |         |                                            |
+|----------------------------|---------|--------------------------------------------|
+| provider_config_id         | key     | value                                      |
+| 1                          | address | 0x12579CeC673809F1c6e83eBE6eC7711882539559 |
 
 
 

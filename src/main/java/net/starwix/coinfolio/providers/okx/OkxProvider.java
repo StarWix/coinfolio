@@ -17,7 +17,7 @@ public class OkxProvider implements Provider {
     @Override
     public List<? extends Fetcher<?>> createFetchers(ReadonlyProviderConfig config) {
         return List.of(
-
+            // https://github.com/knowm/XChange/issues/5027
         );
     }
 }
