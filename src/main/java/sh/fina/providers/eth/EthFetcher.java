@@ -101,7 +101,7 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
         }
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.TOKEN_TRANSFER)) {
             final var transfers = api.getTransactionTokenTransfers(transaction.getHash(), null);
-            var tokenActions = transfers.getItems().stream().map(tokenTransfer -> convert(tokenTransfer, isSender))
+            var tokenActions = transfers.getItems().stream().map(tokenTransfer -> convert(tokenTransfer))
                     .filter(Objects::nonNull)
                     .toList();
             actions.addAll(tokenActions);
@@ -127,10 +127,11 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
         };
     }
 
-    private Action convert(final TokenTransfer tokenTransfer, final boolean isSender) {
+    private Action convert(final TokenTransfer tokenTransfer) {
         if (tokenTransfer.getTotal().getDecimals() == null) {
             return null;
         }
+        final boolean isSender = publicKey.equals(tokenTransfer.getFrom().getHash());
         final int decimals = Integer.parseInt(tokenTransfer.getTotal().getDecimals());
         final BigDecimal amount = new BigDecimal(tokenTransfer.getTotal().getValue()).scaleByPowerOfTen(-decimals);
         return Action.builder()

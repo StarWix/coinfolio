@@ -1,14 +1,14 @@
 package sh.fina.providers.htx;
 
+import org.knowm.xchange.ExchangeFactory;
+import org.knowm.xchange.dto.account.FundingRecord;
+import org.knowm.xchange.huobi.HuobiExchange;
+import org.springframework.stereotype.Component;
 import sh.fina.models.ReadonlyProviderConfig;
 import sh.fina.providers.Fetcher;
 import sh.fina.providers.Provider;
 import sh.fina.providers.xchange.NumericIdFundingHistoryFetcher;
 import sh.fina.providers.xchange.ProviderHelper;
-import org.knowm.xchange.ExchangeFactory;
-import org.knowm.xchange.dto.account.FundingRecord;
-import org.knowm.xchange.huobi.HuobiExchange;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 

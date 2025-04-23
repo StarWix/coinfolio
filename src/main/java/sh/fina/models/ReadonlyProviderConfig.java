@@ -4,7 +4,7 @@ import java.util.Map;
 
 public interface ReadonlyProviderConfig {
     String API_KEY = "apiKey";
-    String SECRET_KEY = "apiKey";
+    String SECRET_KEY = "secretKey";
     String ADDRESS = "address";
 
     int getId();

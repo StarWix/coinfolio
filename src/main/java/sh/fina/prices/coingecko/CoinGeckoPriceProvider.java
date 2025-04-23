@@ -1,36 +1,49 @@
-package sh.fina.prices;
+package sh.fina.prices.coingecko;
 
-import com.litesoftwares.coingecko.CoinGeckoApiClient;
-import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
-import sh.fina.entities.Price;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
+import sh.fina.entities.Price;
+import sh.fina.prices.PriceProvider;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
+@ConditionalOnProperty(name = "prices", havingValue = "coingecko")
+@Slf4j
 public class CoinGeckoPriceProvider implements PriceProvider {
-    private final CoinGeckoApiClient client;
     private final Map<String, String> idBySymbol;
+    private final CoinGeckoClientWrapper client;
 
-    public CoinGeckoPriceProvider() {
-        client = new CoinGeckoApiClientImpl();
-//        idBySymbol = client.getCoinList().stream()
-//                .collect(Collectors.toMap(CoinList::getSymbol, CoinList::getId, (s, s2) -> s));
-        idBySymbol = new HashMap<>();
-        idBySymbol.put("usdt", "tether");
-        idBySymbol.put("usdc", "USDC");
-        idBySymbol.put("btc", "bitcoin");
-        idBySymbol.put("eth", "ethereum");
+    private static final int PAGES = 5;
+
+    public CoinGeckoPriceProvider(final CoinGeckoClientWrapper client) {
+        this.client = client;
+
+        idBySymbol = new LinkedHashMap<>();
+        for (int i = 1; i <= PAGES; i++) {
+            for (var market : client.getCoinMarkets(i)) {
+                idBySymbol.merge(market.getSymbol(), market.getId(), (prev, next) -> {
+                    log.info("Duplicate symbol. {} -> {}", prev, next);
+                    return prev;
+                });
+            }
+        }
+        final var symbols = idBySymbol.entrySet().stream()
+                .map(e -> e.getKey() + ": " + e.getValue())
+                .collect(Collectors.joining("\n"));
+        log.info("CoinGeckoPriceProvider created with symbols:\n{}", symbols);
     }
 
     @Override
     public List<String> findCurrencySymbols() {
-        return client.getSupportedVsCurrencies().stream().map(String::toUpperCase).toList();
+        return client.getSupportedVsCurrencies();
     }
 
     @Override
@@ -42,7 +55,7 @@ public class CoinGeckoPriceProvider implements PriceProvider {
         if (id == null) {
             throw new IllegalArgumentException(String.format("AssetSymbol %s is not found", assetSymbol));
         }
-        return client.getCoinMarketChartById(id, currencySymbol.toLowerCase(), 365, "daily").getPrices().stream()
+        return client.getCoinMarketChartById(id, currencySymbol.toLowerCase()).getPrices().stream()
                 .map(x -> new Price(
                         currencySymbol,
                         ChronoUnit.DAYS,

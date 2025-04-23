@@ -1943,7 +1943,6 @@ components:
         - raw_input
         - value
         - max_priority_fee_per_gas
-        - revert_reason
         - confirmation_duration
         - transaction_tag
       properties:
@@ -2056,9 +2055,6 @@ components:
         max_priority_fee_per_gas:
           type: string
           example: "49793412"
-        revert_reason:
-          type: string
-          example: "Error: (Awaiting internal transactions for reason)"
         confirmation_duration:
           type: object
           example: [0, 17479.0] # 0..17479 milliseconds, it could be [] - unknown or [n] - exact.
