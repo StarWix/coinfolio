@@ -16,3 +16,20 @@ logging:
   level:
     org.springframework.web.client.RestTemplate: DEBUG
     si.mazi.rescu: DEBUG
+    com.litesoftwares.coingecko.CoinGeckoApi: TRACE
+
+prices: coingecko
+
+resilience4j:
+  retry:
+    instances:
+      coingecko:
+        max-attempts: 10
+        wait-duration: 10s
+
+  ratelimiter:
+    instances:
+      coingecko:
+        limit-for-period: 5
+        limit-refresh-period: 1m
+        timeout-duration: 5m

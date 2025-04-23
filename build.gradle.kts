@@ -46,6 +46,9 @@ dependencies {
     // price provider
     implementation("net.osslabz:coingecko-java:1.2.0")
 
+    // request limiter
+    implementation("io.github.resilience4j:resilience4j-spring-boot2:2.3.0")
+
     // providers
     implementation("org.knowm.xchange:xchange-core:$xchangeVersion")
     implementation("org.knowm.xchange:xchange-binance:$xchangeVersion")

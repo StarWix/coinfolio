@@ -12,7 +12,7 @@ spring:
 
 Доступные команды:
 
-- **portfolio overview**
+- **describe portfolio**
 - **pull prices**
 - **pull transactions**
 
