@@ -18,7 +18,7 @@ logging:
     si.mazi.rescu: DEBUG
     com.litesoftwares.coingecko.CoinGeckoApi: TRACE
 
-prices: coingecko
+prices: coindesk
 
 resilience4j:
   retry:

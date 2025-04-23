@@ -1,9 +1,10 @@
-package sh.fina.prices;
+package sh.fina.prices.coingecko;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import sh.fina.entities.Price;
+import sh.fina.prices.PriceProvider;
 
 import java.math.BigDecimal;
 import java.time.Instant;

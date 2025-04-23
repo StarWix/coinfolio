@@ -1,4 +1,4 @@
-package sh.fina.prices;
+package sh.fina.prices.coingecko;
 
 import com.litesoftwares.coingecko.CoinGeckoApiClient;
 import com.litesoftwares.coingecko.domain.Coins.CoinMarkets;
@@ -18,20 +18,14 @@ public class CoinGeckoClientWrapper {
 
     private final CoinGeckoApiClient client = new CoinGeckoApiClientImpl();
 
-    @Retry(name = "coingecko")
-    @RateLimiter(name = "coingecko")
     public List<CoinMarkets> getCoinMarkets(final int page) {
         return client.getCoinMarkets("USD", null, null, MARKETS_PER_PAGE_LIMIT, page, false, "1h");
     }
 
-    @Retry(name = "coingecko")
-    @RateLimiter(name = "coingecko")
     public List<String> getSupportedVsCurrencies() {
         return client.getSupportedVsCurrencies();
     }
 
-    @Retry(name = "coingecko")
-    @RateLimiter(name = "coingecko")
     public MarketChart getCoinMarketChartById(final String id, final String currencySymbol) {
         return client.getCoinMarketChartById(id, currencySymbol, 365, "daily");
     }
