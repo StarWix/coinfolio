@@ -13,7 +13,7 @@ idea {
     }
 }
 
-group = "net.starwix"
+group = "sh.fina"
 version = "0.0.1-SNAPSHOT"
 
 java {
@@ -70,8 +70,8 @@ openApiGenerate {
     generatorName = "java"
     inputSpec = "$projectDir/swagger/blockscout/swagger.yaml"
     outputDir = "$buildDir/generated/"
-    apiPackage = "net.starwix.blockscount.client.api"
-    modelPackage = "net.starwix.blockscount.model.api"
+    apiPackage = "sh.fina.external.blockscount.client.api"
+    modelPackage = "sh.fina.external.blockscount.model.api"
     library = "resttemplate"
 
     skipValidateSpec = true
