@@ -4,6 +4,7 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.Embeddable;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import sh.fina.services.TransactionService;
 
 import java.io.Serializable;
 
@@ -25,6 +26,9 @@ public class Subject implements Serializable {
     @Nullable
     private String accountId;
 
+    /**
+     * Set by {@link TransactionService}
+     */
     @Nullable
     private Integer providerConfigId;
 
@@ -35,11 +39,5 @@ public class Subject implements Serializable {
     public Subject(final String providerConfigSource, final String accountId) {
         this.providerConfigSource = providerConfigSource;
         this.accountId = accountId;
-    }
-
-    public Subject(final String providerConfigSource, final String accountId, final Integer providerConfigId) {
-        this.providerConfigSource = providerConfigSource;
-        this.accountId = accountId;
-        this.providerConfigId = providerConfigId;
     }
 }

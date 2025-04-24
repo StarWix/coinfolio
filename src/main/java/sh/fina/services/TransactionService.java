@@ -9,7 +9,6 @@ import org.springframework.transaction.support.TransactionTemplate;
 import sh.fina.entities.Action;
 import sh.fina.entities.FetcherState;
 import sh.fina.entities.Transaction;
-import sh.fina.entities.TransactionStatus;
 import sh.fina.providers.Fetcher;
 import sh.fina.repositories.FetcherStateRepository;
 import sh.fina.repositories.TransactionRepository;
@@ -47,8 +46,8 @@ public class TransactionService {
 
     private <M> void processTransactionsDesc(final Fetcher<M> fetcher, final FetcherState fetcherState) {
         final Transaction.Id lastTransactionIdForProcessing =
-                transactionRepository.findNewestBy(fetcher.getProviderConfigId(), fetcher.getType(), TransactionStatus.PROCESSING)
-                        .or(() -> transactionRepository.findOldestBy(fetcher.getProviderConfigId(), fetcher.getType(), TransactionStatus.COMPLETED))
+                transactionRepository.findNewestBy(fetcher.getProviderConfigId(), fetcher.getType(), Transaction.Status.PROCESSING)
+                        .or(() -> transactionRepository.findOldestBy(fetcher.getProviderConfigId(), fetcher.getType(), Transaction.Status.COMPLETED))
                         .map(Transaction::getId)
                         .orElse(null);
 
@@ -89,16 +88,22 @@ public class TransactionService {
 
     private <M> Fetcher.TransactionList<M> getTransactionsAndUpdateMeta(final Fetcher<M> fetcher,
                                                                         final FetcherState fetcherState) {
-        M lastMeta;
+        final M lastMeta;
         try {
             lastMeta = fetcherState.getMeta() == null ? null : objectMapper.readValue(fetcherState.getMeta(), fetcher.getMetaClass());
         } catch (JsonProcessingException e) {
             throw new IllegalStateException(e);
         }
         final Fetcher.TransactionList<M> transactions = fetcher.findTransactions(lastMeta);
-        for (Transaction transaction : transactions.getTransactions()) {
-            for (Action action : transaction.getActions()) {
+        for (final Transaction transaction : transactions.getTransactions()) {
+            transaction.setFetcherType(fetcher.getType());
+            for (final Action action : transaction.getActions()) {
                 action.setTransaction(transaction);
+                final boolean isSender = fetcher.owns(action.getSender());
+                final boolean isRecipient = fetcher.owns(action.getRecipient());
+                action.setDirection(Action.Direction.resolve(isSender, isRecipient));
+                action.getSender().setProviderConfigId(isSender ? fetcher.getProviderConfigId() : null);
+                action.getRecipient().setProviderConfigId(isRecipient ? fetcher.getProviderConfigId() : null);
             }
         }
         try {

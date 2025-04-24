@@ -18,15 +18,21 @@ public abstract class FundingHistoryFetcher<M> implements Fetcher<M> {
     protected final FundingRecord.Type fundingRecordType;
     protected final String type;
     protected final AccountService accountService;
+    protected final String accountId;
 
     public FundingHistoryFetcher(final ReadonlyProviderConfig config,
                                  final AccountService accountService,
                                  final FundingRecord.Type fundingRecordType) {
-        providerConfigId = config.getId();
-        source = config.getSource();
+        this.providerConfigId = config.getId();
+        this.source = config.getSource();
         this.fundingRecordType = fundingRecordType;
         this.accountService = accountService;
         this.type = "funding-history-" + fundingRecordType.name().toLowerCase();
+        try {
+            this.accountId = accountService.getAccountInfo().getUsername();
+        } catch (final IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -64,33 +70,35 @@ public abstract class FundingHistoryFetcher<M> implements Fetcher<M> {
         return new TransactionList<>(transactions, resultMeta);
     }
 
+    @Override
+    public boolean owns(Subject subject) {
+        return accountId.equals(subject.getAccountId());
+    }
+
     private Transaction convert(final FundingRecord fundingRecord) {
-        final String accountId = providerConfigId + ":" + fundingRecord.getCurrency().getCurrencyCode();
         final boolean isSender = fundingRecordType.isOutflowing();
-        Subject sender = new Subject(source, accountId, providerConfigId);
-        Subject recipient = new Subject();
+        Subject sender = new Subject(source, accountId);
+        Subject recipient = new Subject(source);
         if (!isSender) {
             Subject t = sender;
             sender = recipient;
             recipient = t;
         }
         final Action transfer = Action.builder()
-                .accountId(accountId)
                 .sender(sender)
                 .recipient(recipient)
-                .amount(isSender ? fundingRecord.getAmount().negate() : fundingRecord.getAmount())
+                .amount(fundingRecord.getAmount())
                 .assetSymbol(fundingRecord.getCurrency().getCurrencyCode())
-                .type(ActionType.TRANSFER)
+                .type(Action.Type.TRANSFER)
                 .build();
         final Action fee = fundingRecord.getFee().compareTo(BigDecimal.ZERO) == 0
                 ? null
                 : Action.builder()
-                        .accountId(accountId)
                         .sender(sender)
                         .recipient(recipient)
-                        .amount(fundingRecord.getFee().negate())
+                        .amount(fundingRecord.getFee())
                         .assetSymbol(fundingRecord.getCurrency().getCurrencyCode())
-                        .type(ActionType.FEE)
+                        .type(Action.Type.FEE)
                         .build();
         return Transaction.builder()
                 .id(new Transaction.Id(source, fundingRecord.getInternalId(), providerConfigId))
@@ -103,12 +111,12 @@ public abstract class FundingHistoryFetcher<M> implements Fetcher<M> {
                 ).build();
     }
 
-    private TransactionStatus convert(final FundingRecord.Status status) {
+    private Transaction.Status convert(final FundingRecord.Status status) {
         return switch (status) {
-            case PROCESSING -> TransactionStatus.PROCESSING;
-            case CANCELLED -> TransactionStatus.CANCELED;
-            case COMPLETE -> TransactionStatus.COMPLETED;
-            case FAILED -> TransactionStatus.ERROR;
+            case PROCESSING -> Transaction.Status.PROCESSING;
+            case CANCELLED -> Transaction.Status.CANCELED;
+            case COMPLETE -> Transaction.Status.COMPLETED;
+            case FAILED -> Transaction.Status.ERROR;
         };
     }
 

@@ -1,6 +1,8 @@
 package sh.fina.entities;
 
 import jakarta.annotation.Nullable;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,6 +17,15 @@ public class Account {
     @Nullable
     private String providerConfigId;
     private String assetSymbol;
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
     private BigDecimal amount;
-    private AccountType type;
+
+    public enum Type {
+        SPOT,
+        FUTURES,
+        MARGIN,
+        DEPOSIT,
+    }
 }

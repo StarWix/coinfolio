@@ -28,21 +28,21 @@ public class DummyFetcher implements Fetcher<DummyFetcher.Meta> {
         // 2025-01-02T00:00:00Z Buy BTC (0.10591393) on 10_000 USDT AND pay fee 1 USDT.
         // 2025-02-01T00:00:00Z Sell all BTC (0.10591393) and pay fee 1 USDT.
         final BigDecimal btcAmount = BigDecimal.valueOf(10_000. / 94416.29).setScale(8, RoundingMode.HALF_EVEN);
+        final String accountId = "" + config.getId();
         final var transactions = List.of(
                 Transaction.builder()
                         .id(new Transaction.Id("dummy", "1", config.getId()))
                         .actions(List.of(
                                 Action.builder()
-                                        .accountId(config.getId() + ":USDT")
                                         .sender(new Subject("dummy"))
-                                        .recipient(new Subject("dummy", config.getId() + ":USDT", config.getId()))
+                                        .recipient(new Subject("dummy", accountId))
                                         .amount(BigDecimal.valueOf(10_002))
                                         .assetSymbol("USDT")
-                                        .type(ActionType.TRANSFER)
+                                        .type(Action.Type.TRANSFER)
                                         .build()
                         ))
                         .createdAt(Instant.parse("2025-01-01T00:00:00Z"))
-                        .status(TransactionStatus.COMPLETED)
+                        .status(Transaction.Status.COMPLETED)
                         .note("Deposit")
                         .childId(new Transaction.Id("tron", "832b0be39c472400b4edde257619d151ae34e1fed4f474bce04f11dc2f611250"))
                         .build(),
@@ -50,64 +50,58 @@ public class DummyFetcher implements Fetcher<DummyFetcher.Meta> {
                         .id(new Transaction.Id("dummy", "2", config.getId()))
                         .actions(List.of(
                                 Action.builder()
-                                        .accountId(config.getId() + ":USDT")
-                                        .sender(new Subject("dummy", config.getId() + ":USDT", config.getId()))
+                                        .sender(new Subject("dummy", accountId))
                                         .recipient(new Subject("dummy"))
-                                        .amount(BigDecimal.valueOf(-10_000))
+                                        .amount(BigDecimal.valueOf(10_000))
                                         .assetSymbol("USDT")
-                                        .type(ActionType.TRANSFER)
+                                        .type(Action.Type.TRANSFER)
                                         .build(),
                                 Action.builder()
-                                        .accountId(config.getId() + ":USDT")
-                                        .sender(new Subject("dummy", config.getId() + ":USDT", config.getId()))
+                                        .sender(new Subject("dummy", accountId))
                                         .recipient(new Subject("dummy"))
-                                        .amount(BigDecimal.valueOf(-1))
+                                        .amount(BigDecimal.valueOf(1))
                                         .assetSymbol("USDT")
-                                        .type(ActionType.FEE)
+                                        .type(Action.Type.FEE)
                                         .build(),
                                 Action.builder()
-                                        .accountId(config.getId() + ":BTC")
                                         .sender(new Subject("dummy"))
-                                        .recipient(new Subject("dummy", config.getId() + ":BTC", config.getId()))
+                                        .recipient(new Subject("dummy", accountId))
                                         .amount(btcAmount)
                                         .assetSymbol("BTC")
-                                        .type(ActionType.TRANSFER)
+                                        .type(Action.Type.TRANSFER)
                                         .build()
                         ))
                         .createdAt(Instant.parse("2025-01-02T00:00:00Z"))
-                        .status(TransactionStatus.COMPLETED)
+                        .status(Transaction.Status.COMPLETED)
                         .note("Buy bitcoin")
                         .build(),
                 Transaction.builder()
-                        .id(new Transaction.Id("dummy", "3", config.getId()))
+                        .id(new Transaction.Id("dummy", "3"))
                         .actions(List.of(
                                 Action.builder()
-                                        .accountId(config.getId() + ":BTC")
-                                        .sender(new Subject("dummy", config.getId() + ":BTC", config.getId()))
+                                        .sender(new Subject("dummy", accountId))
                                         .recipient(new Subject("dummy"))
-                                        .amount(btcAmount.negate())
+                                        .amount(btcAmount)
                                         .assetSymbol("BTC")
-                                        .type(ActionType.TRANSFER)
+                                        .type(Action.Type.TRANSFER)
                                         .build(),
                                 Action.builder()
-                                        .accountId(config.getId() + ":USDT")
-                                        .sender(new Subject("dummy", config.getId() + ":USDT", config.getId()))
+                                        .sender(new Subject("dummy", accountId))
                                         .recipient(new Subject("dummy"))
-                                        .amount(BigDecimal.valueOf(-1))
+                                        .amount(BigDecimal.valueOf(1))
                                         .assetSymbol("USDT")
-                                        .type(ActionType.FEE)
+                                        .type(Action.Type.FEE)
                                         .build(),
                                 Action.builder()
-                                        .accountId(config.getId() + ":USDT")
                                         .sender(new Subject("dummy"))
-                                        .recipient(new Subject("dummy", config.getId() + ":USDT", config.getId()))
+                                        .recipient(new Subject("dummy", accountId))
                                         .amount(btcAmount.multiply(new BigDecimal(100674).setScale(2, RoundingMode.HALF_EVEN)))
                                         .assetSymbol("USDT")
-                                        .type(ActionType.TRANSFER)
+                                        .type(Action.Type.TRANSFER)
                                         .build()
                         ))
                         .createdAt(Instant.parse("2025-02-01T00:00:00Z"))
-                        .status(TransactionStatus.COMPLETED)
+                        .status(Transaction.Status.COMPLETED)
                         .note("Sell bitcoin")
                         .build()
         );
@@ -159,6 +153,11 @@ public class DummyFetcher implements Fetcher<DummyFetcher.Meta> {
         }
         final Meta resultMeta = resultTransactions.isEmpty() ? null : new Meta(resultTransactions.getLast().getCreatedAt().plusMillis(direction == Direction.ASC ? 1 : -1));
         return new TransactionList<>(resultTransactions, resultMeta);
+    }
+
+    @Override
+    public boolean owns(Subject subject) {
+        return ("" + config.getId()).equals(subject.getAccountId());
     }
 
     @Data

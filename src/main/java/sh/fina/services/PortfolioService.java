@@ -64,7 +64,7 @@ public class PortfolioService {
                     updatePrices();
                 }
                 for (final var action : transaction.getActions()) {
-                    amountBySymbol.merge(action.getAssetSymbol(), action.getAmount(), BigDecimal::add);
+                    amountBySymbol.merge(action.getAssetSymbol(), action.getPortfolioAmount(), BigDecimal::add);
                 }
                 transaction = transactionIt.hasNext() ? transactionIt.next() : null;
             }

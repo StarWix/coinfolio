@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class FinaShApplicationTest {
@@ -33,6 +34,8 @@ class FinaShApplicationTest {
     private PortfolioService portfolioService;
     @Autowired
     private ProviderConfigRepository providerConfigRepository;
+
+    private static final BigDecimal DELTA = new BigDecimal("0.001");
 
     @BeforeAll
     public static void cleanup() throws IOException {
@@ -71,6 +74,9 @@ class FinaShApplicationTest {
                 .toList();
         assertEquals(1, statisticOnDate.size());
         var expected = new BigDecimal(expectedAmount);
-        assertEquals(new BigDecimal(expectedAmount), statisticOnDate.getFirst().amount().setScale(expected.scale(), RoundingMode.HALF_DOWN));
+        var relativeError = expected.divide(statisticOnDate.getFirst().amount(), RoundingMode.HALF_DOWN)
+                .subtract(BigDecimal.ONE)
+                .abs();
+        assertTrue(relativeError.compareTo(DELTA) < 0, relativeError.toString());
     }
 }

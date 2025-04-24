@@ -1,6 +1,8 @@
 package sh.fina.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.IdClass;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +22,7 @@ public class Price {
     @jakarta.persistence.Id
     private String currencySymbol;
     @jakarta.persistence.Id
+    @Enumerated(EnumType.STRING)
     private ChronoUnit timeframe;
     @jakarta.persistence.Id
     private String assetSymbol;

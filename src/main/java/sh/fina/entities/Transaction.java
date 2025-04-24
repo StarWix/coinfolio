@@ -4,8 +4,10 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import sh.fina.services.TransactionService;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -20,10 +22,15 @@ public class Transaction {
     @EmbeddedId
     private Id id;
 
+    /**
+     * Set by {@link TransactionService}
+     */
+    private String fetcherType;
+
     private Instant createdAt;
 
     @Enumerated(EnumType.STRING)
-    private TransactionStatus status;
+    private Status status;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "transaction", orphanRemoval = true)
     private List<Action> actions;
@@ -55,5 +62,16 @@ public class Transaction {
             this.providerSource = providerSource;
             this.transactionId = transactionId;
         }
+    }
+
+    @AllArgsConstructor
+    @Getter
+    public enum Status {
+        COMPLETED(true),
+        PROCESSING(false),
+        CANCELED(true),
+        ERROR(true);
+
+        private final boolean terminated;
     }
 }
