@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
-abstract public class EthFetcher implements Fetcher<EthFetcher.Meta> {
+abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
     protected static final int ETH_DECIMALS = 18;
 
     protected final DefaultApi api;
@@ -25,7 +25,7 @@ abstract public class EthFetcher implements Fetcher<EthFetcher.Meta> {
     protected final int id;
     protected final String source;
 
-    public EthFetcher(final ReadonlyProviderConfig config) {
+    public AbstractFetcher(final ReadonlyProviderConfig config) {
         api = new DefaultApi();
         publicKey = config.getAddress();
         id = config.getId();
@@ -52,37 +52,34 @@ abstract public class EthFetcher implements Fetcher<EthFetcher.Meta> {
         return Meta.class;
     }
 
-    private BigDecimal negateIfSender(final BigDecimal amount, final boolean isSender) {
-        return isSender ? amount.negate() : amount;
+    @Override
+    public boolean owns(final Subject subject) {
+        return publicKey.equals(subject.getAccountId());
     }
 
     protected Transaction convert(final sh.fina.external.blockscount.model.api.Transaction transaction) {
         final List<Action> actions = new ArrayList<>();
-        final boolean isSender = publicKey.equals(transaction.getFrom().getHash());
 
-        if (isSender) {
-            actions.add(Action.builder()
-                    .type(ActionType.FEE)
-                    .accountId(publicKey + ":ETH")
-                    .amount(new BigDecimal(transaction.getFee().getValue()).scaleByPowerOfTen(-ETH_DECIMALS).negate())
-                    .assetSymbol("ETH")
-                    .sender(new Subject("eth", publicKey + ":ETH", id))
-                    .recipient(new Subject("eth"))
-                    .build());
-        }
+        actions.add(Action.builder()
+                .type(Action.Type.FEE)
+                .amount(new BigDecimal(transaction.getFee().getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
+                .assetSymbol("ETH")
+                .sender(new Subject("eth", transaction.getFrom().getHash()))
+                .recipient(new Subject("eth"))
+                .build());
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.COIN_TRANSFER)) {
             actions.add(Action.builder()
-                    .type(ActionType.TRANSFER)
-                    .accountId(publicKey + ":ETH")
-                    .amount(negateIfSender(new BigDecimal(transaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS), isSender))
+                    .type(Action.Type.TRANSFER)
+                    .amount(new BigDecimal(transaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
                     .assetSymbol("ETH")
-                    .sender(new Subject("eth", transaction.getFrom().getHash(), id))
-                    .recipient(new Subject("eth", transaction.getTo().getHash(), id))
+                    .sender(new Subject("eth", transaction.getFrom().getHash()))
+                    .recipient(new Subject("eth", transaction.getTo().getHash()))
                     .build());
         }
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.TOKEN_TRANSFER)) {
             final var transfers = api.getTransactionTokenTransfers(transaction.getHash(), null);
-            var tokenActions = transfers.getItems().stream().map(tokenTransfer -> convert(tokenTransfer))
+            var tokenActions = transfers.getItems().stream()
+                    .map(this::convert)
                     .filter(Objects::nonNull)
                     .toList();
             actions.addAll(tokenActions);
@@ -100,28 +97,25 @@ abstract public class EthFetcher implements Fetcher<EthFetcher.Meta> {
                 .build();
     }
 
-    private TransactionStatus convert(final sh.fina.external.blockscount.model.api.Transaction.StatusEnum status) {
+    private Transaction.Status convert(final sh.fina.external.blockscount.model.api.Transaction.StatusEnum status) {
         return switch (status) {
-            case OK -> TransactionStatus.COMPLETED;
-            case ERROR -> TransactionStatus.ERROR;
-            default -> throw new IllegalStateException(status.name());
+            case OK -> Transaction.Status.COMPLETED;
+            case ERROR -> Transaction.Status.ERROR;
         };
     }
 
     private Action convert(final TokenTransfer tokenTransfer) {
-        if (tokenTransfer.getTotal().getDecimals() == null) {
+        if (    tokenTransfer.getTotal().getDecimals() == null) {
             return null;
         }
-        final boolean isSender = publicKey.equals(tokenTransfer.getFrom().getHash());
         final int decimals = Integer.parseInt(tokenTransfer.getTotal().getDecimals());
         final BigDecimal amount = new BigDecimal(tokenTransfer.getTotal().getValue()).scaleByPowerOfTen(-decimals);
         return Action.builder()
-                .type(ActionType.TRANSFER)
-                .accountId(publicKey + ":" + tokenTransfer.getToken().getSymbol())
-                .amount(negateIfSender(amount, isSender))
+                .type(Action.Type.TRANSFER)
+                .amount(amount)
                 .assetSymbol(tokenTransfer.getToken().getSymbol())
-                .sender(new Subject("eth", tokenTransfer.getFrom().getHash(), id))
-                .recipient(new Subject("eth", tokenTransfer.getTo().getHash(), id))
+                .sender(new Subject("eth", tokenTransfer.getFrom().getHash()))
+                .recipient(new Subject("eth", tokenTransfer.getTo().getHash()))
                 .build();
     }
 

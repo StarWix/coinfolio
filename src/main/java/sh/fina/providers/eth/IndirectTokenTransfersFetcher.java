@@ -7,7 +7,7 @@ import sh.fina.models.ReadonlyProviderConfig;
 import java.util.Objects;
 
 @Slf4j
-public class IndirectTokenTransfersFetcher extends EthFetcher {
+public class IndirectTokenTransfersFetcher extends AbstractFetcher {
     public IndirectTokenTransfersFetcher(final ReadonlyProviderConfig config) {
         super(config);
     }

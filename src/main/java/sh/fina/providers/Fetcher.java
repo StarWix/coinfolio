@@ -2,6 +2,7 @@ package sh.fina.providers;
 
 import lombok.Value;
 import sh.fina.entities.Account;
+import sh.fina.entities.Subject;
 import sh.fina.entities.Transaction;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,6 +14,7 @@ public interface Fetcher<M> {
     List<Account> findAccounts();
     Direction getDirection();
     Class<M> getMetaClass();
+    boolean owns(final Subject subject);
 
     /**
      * Finds transactions based on the provided meta.

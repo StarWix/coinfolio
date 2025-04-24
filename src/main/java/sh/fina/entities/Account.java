@@ -15,6 +15,14 @@ public class Account {
     @Nullable
     private String providerConfigId;
     private String assetSymbol;
+    private Type type;
+
     private BigDecimal amount;
-    private AccountType type;
+
+    public enum Type {
+        SPOT,
+        FUTURES,
+        MARGIN,
+        DEPOSIT,
+    }
 }

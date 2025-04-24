@@ -5,7 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import sh.fina.models.ReadonlyProviderConfig;
 
 @Slf4j
-public class TransactionsFetcher extends EthFetcher {
+public class TransactionsFetcher extends AbstractFetcher {
     public TransactionsFetcher(final ReadonlyProviderConfig config) {
         super(config);
     }

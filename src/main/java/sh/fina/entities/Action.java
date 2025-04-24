@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import sh.fina.services.TransactionService;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -17,10 +18,11 @@ public class Action {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Set by {@link TransactionService}
+     */
     @ManyToOne
     private Transaction transaction;
-
-    private String accountId;
 
     @Embedded
     @AttributeOverrides({
@@ -41,11 +43,20 @@ public class Action {
     private String assetSymbol;
 
     /**
-     * Must be positive if recipient equals transaction.accountId. Otherwise negative
+     * Must be positive.
      */
     private BigDecimal amount;
     @Enumerated(EnumType.STRING)
-    private ActionType type;
+    private Type type;
+
+    /**
+     * Set by {@link TransactionService}
+     */
+    private Direction direction;
+
+    public BigDecimal getPortfolioAmount() {
+        return direction.getPortfolioAmount(amount);
+    }
 
     @Override
     public boolean equals(final Object o) {
@@ -66,5 +77,38 @@ public class Action {
     @Override
     public int hashCode() {
         return Objects.hash(transaction.getId(), sender, recipient, assetSymbol, type);
+    }
+
+    public enum Type {
+        TRANSFER,
+        FEE
+    }
+
+    public enum Direction {
+        SENDER,
+        RECIPIENT,
+        BOTH,
+        NONE;
+
+        public static Direction resolve(final boolean isSender, final boolean isRecipient) {
+            if (isSender) {
+                if (isRecipient) {
+                    return Direction.BOTH;
+                }
+                return SENDER;
+            }
+            if (isRecipient) {
+                return Direction.RECIPIENT;
+            }
+            return Direction.NONE;
+        }
+
+        private BigDecimal getPortfolioAmount(final BigDecimal amount) {
+            return switch (this) {
+                case SENDER -> amount.negate();
+                case RECIPIENT -> amount;
+                case BOTH, NONE -> BigDecimal.ZERO;
+            };
+        }
     }
 }
