@@ -15,6 +15,9 @@ public class EthProvider implements Provider {
 
     @Override
     public List<EthFetcher> createFetchers(ReadonlyProviderConfig config) {
-        return List.of(new EthFetcher(config));
+        return List.of(
+                new TransactionsFetcher(config),
+                new IndirectTokenTransfersFetcher(config)
+        );
     }
 }

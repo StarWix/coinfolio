@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 import sh.fina.entities.*;
 import sh.fina.external.blockscount.client.api.DefaultApi;
 import sh.fina.external.blockscount.model.api.TokenTransfer;
@@ -18,13 +17,13 @@ import java.util.Map;
 import java.util.Objects;
 
 @Slf4j
-public class EthFetcher implements Fetcher<EthFetcher.Meta> {
-    private static final int ETH_DECIMALS = 18;
+abstract public class EthFetcher implements Fetcher<EthFetcher.Meta> {
+    protected static final int ETH_DECIMALS = 18;
 
-    private final DefaultApi api;
-    private final String publicKey;
-    private final int id;
-    private final String source;
+    protected final DefaultApi api;
+    protected final String publicKey;
+    protected final int id;
+    protected final String source;
 
     public EthFetcher(final ReadonlyProviderConfig config) {
         api = new DefaultApi();
@@ -39,18 +38,13 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
     }
 
     @Override
-    public String getType() {
-        return "eth";
-    }
-
-    @Override
     public List<Account> findAccounts() {
         throw new UnsupportedOperationException("findAccounts");
     }
 
     @Override
-    public Direction getDirection() {
-        return Direction.DESC;
+    public Fetcher.Direction getDirection() {
+        return Fetcher.Direction.DESC;
     }
 
     @Override
@@ -58,24 +52,11 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
         return Meta.class;
     }
 
-    @Override
-    public TransactionList<Meta> findTransactions(@Nullable final Meta meta) {
-        final var nextPageParams = meta == null ? null : meta.getNextPageParams();
-        final var blockchainTransactions = api.getAddressTxs(publicKey, null, nextPageParams);
-
-        final var transactions = blockchainTransactions.getItems().stream().map(this::convert).toList();
-
-        return new TransactionList<>(
-                transactions,
-                blockchainTransactions.getNextPageParams() == null ? null : new Meta(blockchainTransactions.getNextPageParams())
-        );
-    }
-
     private BigDecimal negateIfSender(final BigDecimal amount, final boolean isSender) {
         return isSender ? amount.negate() : amount;
     }
 
-    private Transaction convert(final sh.fina.external.blockscount.model.api.Transaction transaction) {
+    protected Transaction convert(final sh.fina.external.blockscount.model.api.Transaction transaction) {
         final List<Action> actions = new ArrayList<>();
         final boolean isSender = publicKey.equals(transaction.getFrom().getHash());
 
@@ -90,7 +71,7 @@ public class EthFetcher implements Fetcher<EthFetcher.Meta> {
                     .build());
         }
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.COIN_TRANSFER)) {
-             actions.add(Action.builder()
+            actions.add(Action.builder()
                     .type(ActionType.TRANSFER)
                     .accountId(publicKey + ":ETH")
                     .amount(negateIfSender(new BigDecimal(transaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS), isSender))
