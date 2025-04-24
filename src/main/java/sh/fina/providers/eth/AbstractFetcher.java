@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import sh.fina.entities.*;
 import sh.fina.external.blockscount.client.api.DefaultApi;
+import sh.fina.external.blockscount.model.api.InternalTransaction;
 import sh.fina.external.blockscount.model.api.TokenTransfer;
 import sh.fina.models.ReadonlyProviderConfig;
 import sh.fina.providers.Fetcher;
@@ -87,6 +88,14 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
                 log.warn("Transaction {} has second page of transfers", transaction.getHash());
             }
         }
+        final var internalTransactions = api.getTransactionInternalTxs(transaction.getHash());
+        var internalActions = internalTransactions.getItems().stream()
+                .map(this::convert)
+                .toList();
+        actions.addAll(internalActions);
+        if (internalTransactions.getNextPageParams() != null) {
+            log.warn("Transaction {} has second page of internal transfers", transaction.getHash());
+        }
 
         return Transaction.builder()
                 .id(new Transaction.Id(source, transaction.getHash(), id))
@@ -105,7 +114,7 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
     }
 
     private Action convert(final TokenTransfer tokenTransfer) {
-        if (    tokenTransfer.getTotal().getDecimals() == null) {
+        if (tokenTransfer.getTotal().getDecimals() == null) {
             return null;
         }
         final int decimals = Integer.parseInt(tokenTransfer.getTotal().getDecimals());
@@ -116,6 +125,16 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
                 .assetSymbol(tokenTransfer.getToken().getSymbol())
                 .sender(new Subject("eth", tokenTransfer.getFrom().getHash()))
                 .recipient(new Subject("eth", tokenTransfer.getTo().getHash()))
+                .build();
+    }
+
+    private Action convert(final InternalTransaction internalTransaction) {
+        return Action.builder()
+                .type(Action.Type.TRANSFER)
+                .amount(new BigDecimal(internalTransaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
+                .assetSymbol("ETH")
+                .sender(new Subject("eth", internalTransaction.getFrom().getHash()))
+                .recipient(new Subject("eth", internalTransaction.getTo().getHash()))
                 .build();
     }
 

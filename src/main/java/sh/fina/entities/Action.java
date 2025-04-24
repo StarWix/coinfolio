@@ -52,6 +52,7 @@ public class Action {
     /**
      * Set by {@link TransactionService}
      */
+    @Enumerated(EnumType.STRING)
     private Direction direction;
 
     public BigDecimal getPortfolioAmount() {
