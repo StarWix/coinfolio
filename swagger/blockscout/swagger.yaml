@@ -2,6 +2,8 @@ openapi: 3.0.0
 servers:
   - url: https://eth.blockscout.com/api/v2
     description: eth.blockscout.com
+  - url: https://arbitrum.blockscout.com/api/v2
+    description: arbitrum.blockscout.com
 
 info:
   description: API for BlockScout web app

@@ -2,6 +2,7 @@ package sh.fina.services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import sh.fina.entities.Price;
 import sh.fina.entities.Transaction;
 import sh.fina.models.Statistic;
@@ -16,6 +17,7 @@ import java.util.*;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PortfolioService {
     private final PriceRepository priceRepository;
     private final TransactionRepository transactionRepository;
@@ -80,8 +82,10 @@ public class PortfolioService {
         private Statistic calcStatistic() {
             final BigDecimal total = priceBySymbol.entrySet().stream().map(entry -> {
                 BigDecimal amount = amountBySymbol.getOrDefault(entry.getKey(), BigDecimal.ZERO);
+                log.debug("Calculating statistic for symbol: {} and portfolio amount: {}", entry.getKey(), amount);
                 return entry.getValue().multiply(amount);
             }).reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+            log.debug("Total: {} - {}", currentOpenTimestamp, total);
             return new Statistic(currentOpenTimestamp, total);
         }
 

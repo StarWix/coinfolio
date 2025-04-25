@@ -8,7 +8,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import sh.fina.entities.Price;
 import sh.fina.prices.PriceProvider;
@@ -21,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConditionalOnProperty(name = "prices", havingValue = "coindesk")
 @AllArgsConstructor
 @Slf4j
 public class CoinDeskPriceProvider implements PriceProvider {
