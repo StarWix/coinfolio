@@ -2,11 +2,11 @@ package sh.fina.services;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Service;
 import sh.fina.entities.Price;
-import sh.fina.prices.PriceProvider;
+import sh.fina.prices.multisource.MultisourcePriceProvider;
 import sh.fina.repositories.ActionRepository;
 import sh.fina.repositories.PriceRepository;
-import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Log4j2
 public class PriceService {
-    private final PriceProvider priceProvider;
+    private final MultisourcePriceProvider priceProvider;
     private final PriceRepository priceRepository;
     private final ActionRepository actionRepository;
 

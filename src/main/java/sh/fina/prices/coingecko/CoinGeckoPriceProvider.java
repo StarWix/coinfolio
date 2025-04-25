@@ -1,7 +1,6 @@
 package sh.fina.prices.coingecko;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import sh.fina.entities.Price;
 import sh.fina.prices.PriceProvider;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
-@ConditionalOnProperty(name = "prices", havingValue = "coingecko")
 @Slf4j
 public class CoinGeckoPriceProvider implements PriceProvider {
     private final Map<String, String> idBySymbol;
@@ -35,10 +33,12 @@ public class CoinGeckoPriceProvider implements PriceProvider {
                 });
             }
         }
-        final var symbols = idBySymbol.entrySet().stream()
-                .map(e -> e.getKey() + ": " + e.getValue())
-                .collect(Collectors.joining("\n"));
-        log.info("CoinGeckoPriceProvider created with symbols:\n{}", symbols);
+        if (log.isDebugEnabled()) {
+            final var symbols = idBySymbol.entrySet().stream()
+                    .map(e -> e.getKey() + ": " + e.getValue())
+                    .collect(Collectors.joining("\n"));
+            log.debug("CoinGeckoPriceProvider created with symbols:\n{}", symbols);
+        }
     }
 
     @Override
@@ -60,7 +60,7 @@ public class CoinGeckoPriceProvider implements PriceProvider {
                         currencySymbol,
                         ChronoUnit.DAYS,
                         assetSymbol,
-                        Instant.ofEpochMilli(Long.parseLong(x.get(0))).minus(1, ChronoUnit.DAYS),
+                        Instant.ofEpochMilli(Long.parseLong(x.getFirst())).minus(1, ChronoUnit.DAYS),
                         new BigDecimal(x.get(1))
                 ))
                 .filter(x -> !x.getOpenTimestamp().isBefore(startDate) && !x.getOpenTimestamp().isAfter(endDate))

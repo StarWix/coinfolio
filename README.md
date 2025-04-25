@@ -4,14 +4,15 @@ Asset History Tracker CLI
 
 ## Roadmap
 
-| Feature                            | Version |
-|------------------------------------|---------|
-| Download of asset movement history | v0.1 ✅  |
-| Download of historical price data  | v0.1 ✅  |
-| Daily aggregated asset balances    | v0.1 ✅  |
-| Data encryption                    | v0.3    |
-| Daily balances per account         | v0.3    |
-| Data visualization (charts)        | v0.3    |
+| Feature                                       | Version |
+|-----------------------------------------------|---------|
+| Download of asset movement history (REST API) | v0.1 ✅  |
+| Download of historical price data             | v0.1 ✅  |
+| Daily aggregated asset balances               | v0.1 ✅  |
+| Import asset movement history (CSV)           | v0.2    |
+| Data encryption                               | v0.3    |
+| Daily balances per account                    | v0.3    |
+| Data visualization (charts)                   | v0.3    |
 
 ## Roadmap by asset sources
 
@@ -20,7 +21,7 @@ Asset History Tracker CLI
 | Blockchain | Transfers | Token Transfers | Stacking |
 |------------|-----------|-----------------|----------|
 | ETH        | v0.1 ✅    | v0.1 ✅          |          |
-| ARB        | v0.1      | v0.1            |          |
+| ARB        | v0.1 ✅    | v0.1 ✅          |          |
 | ATOM       | v0.1      |                 | v0.1     |
 | DOT        | v0.1      |                 | v0.1     |
 | DYDX       | v0.1      | v0.1            | v0.1     |
@@ -44,7 +45,7 @@ Asset History Tracker CLI
 |------------|-----------------|-------------|----------------|-------------|
 | bybit.com  | v0.1            | v0.1        |                | v0.1        |
 | htx.com    | v0.1 🛠️        | v0.1        | v0.1           | v0.1        |
-| okx.com    | v0.2            | v0.2        | v0.2           | v0.2        |
+| okx.com    | v0.2            | v0.2        |                | v0.2        |
 | kraken.com | v0.2            | v0.2        | v0.2           | v0.2        |
 
 ### CEX (CSV imports)

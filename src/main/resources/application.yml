@@ -17,8 +17,9 @@ logging:
     org.springframework.web.client.RestTemplate: DEBUG
     si.mazi.rescu: DEBUG
     com.litesoftwares.coingecko.CoinGeckoApi: TRACE
+    sh.fina: INFO
 
-prices: coindesk
+prices: multisource
 
 resilience4j:
   retry:

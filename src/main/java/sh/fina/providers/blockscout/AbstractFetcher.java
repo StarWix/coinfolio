@@ -1,10 +1,13 @@
-package sh.fina.providers.eth;
+package sh.fina.providers.blockscout;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import sh.fina.entities.*;
+import sh.fina.entities.Account;
+import sh.fina.entities.Action;
+import sh.fina.entities.Subject;
+import sh.fina.entities.Transaction;
 import sh.fina.external.blockscount.client.api.DefaultApi;
 import sh.fina.external.blockscount.model.api.InternalTransaction;
 import sh.fina.external.blockscount.model.api.TokenTransfer;
@@ -26,11 +29,11 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
     protected final int id;
     protected final String source;
 
-    public AbstractFetcher(final ReadonlyProviderConfig config) {
-        api = new DefaultApi();
-        publicKey = config.getAddress();
-        id = config.getId();
-        source = config.getSource();
+    public AbstractFetcher(final ReadonlyProviderConfig config, final DefaultApi api) {
+        this.api = api;
+        this.publicKey = config.getAddress();
+        this.id = config.getId();
+        this.source = config.getSource();
     }
 
     @Override
@@ -65,16 +68,16 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
                 .type(Action.Type.FEE)
                 .amount(new BigDecimal(transaction.getFee().getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
                 .assetSymbol("ETH")
-                .sender(new Subject("eth", transaction.getFrom().getHash()))
-                .recipient(new Subject("eth"))
+                .sender(new Subject(source, transaction.getFrom().getHash()))
+                .recipient(new Subject(source))
                 .build());
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.COIN_TRANSFER)) {
             actions.add(Action.builder()
                     .type(Action.Type.TRANSFER)
                     .amount(new BigDecimal(transaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
                     .assetSymbol("ETH")
-                    .sender(new Subject("eth", transaction.getFrom().getHash()))
-                    .recipient(new Subject("eth", transaction.getTo().getHash()))
+                    .sender(new Subject(source, transaction.getFrom().getHash()))
+                    .recipient(new Subject(source, transaction.getTo().getHash()))
                     .build());
         }
         if (transaction.getTransactionTypes().contains(sh.fina.external.blockscount.model.api.Transaction.TransactionTypesEnum.TOKEN_TRANSFER)) {
@@ -123,8 +126,8 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
                 .type(Action.Type.TRANSFER)
                 .amount(amount)
                 .assetSymbol(tokenTransfer.getToken().getSymbol())
-                .sender(new Subject("eth", tokenTransfer.getFrom().getHash()))
-                .recipient(new Subject("eth", tokenTransfer.getTo().getHash()))
+                .sender(new Subject(source, tokenTransfer.getFrom().getHash()))
+                .recipient(new Subject(source, tokenTransfer.getTo().getHash()))
                 .build();
     }
 
@@ -133,8 +136,8 @@ abstract public class AbstractFetcher implements Fetcher<AbstractFetcher.Meta> {
                 .type(Action.Type.TRANSFER)
                 .amount(new BigDecimal(internalTransaction.getValue()).scaleByPowerOfTen(-ETH_DECIMALS))
                 .assetSymbol("ETH")
-                .sender(new Subject("eth", internalTransaction.getFrom().getHash()))
-                .recipient(new Subject("eth", internalTransaction.getTo().getHash()))
+                .sender(new Subject(source, internalTransaction.getFrom().getHash()))
+                .recipient(new Subject(source, internalTransaction.getTo().getHash()))
                 .build();
     }
 

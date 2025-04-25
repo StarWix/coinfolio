@@ -1,15 +1,16 @@
-package sh.fina.providers.eth;
+package sh.fina.providers.blockscout;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
+import sh.fina.external.blockscount.client.api.DefaultApi;
 import sh.fina.models.ReadonlyProviderConfig;
 
 import java.util.Objects;
 
 @Slf4j
 public class IndirectTokenTransfersFetcher extends AbstractFetcher {
-    public IndirectTokenTransfersFetcher(final ReadonlyProviderConfig config) {
-        super(config);
+    public IndirectTokenTransfersFetcher(final ReadonlyProviderConfig config, final DefaultApi api) {
+        super(config, api);
     }
 
     @Override
