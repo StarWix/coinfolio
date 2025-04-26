@@ -115,7 +115,9 @@ public class BtcFetcher implements Fetcher<BtcFetcher.Meta> {
         return Action.builder()
                 .type(Action.Type.TRANSFER)
                 .amount(BigDecimal.valueOf(vin.getPrevout().getValue())
-                        .scaleByPowerOfTen(SATOSHI_TO_BTC_POWER_DIVIDER))
+                        .scaleByPowerOfTen(-SATOSHI_TO_BTC_POWER_DIVIDER).negate())
+                .sender(null)
+                .recipient(new Subject(source, addressPublicKey))
                 .assetSymbol(BTC_SYMBOL)
                 .build();
     }
@@ -129,6 +131,8 @@ public class BtcFetcher implements Fetcher<BtcFetcher.Meta> {
                 .type(Action.Type.TRANSFER)
                 .amount(BigDecimal.valueOf(vout.getValue())
                         .scaleByPowerOfTen(-SATOSHI_TO_BTC_POWER_DIVIDER))
+                .sender(new Subject(source, addressPublicKey))
+                .recipient(null)
                 .assetSymbol(BTC_SYMBOL)
                 .build();
     }
