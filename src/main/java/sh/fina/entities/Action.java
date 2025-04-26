@@ -46,6 +46,7 @@ public class Action {
      * Must be positive.
      */
     private BigDecimal amount;
+
     @Enumerated(EnumType.STRING)
     private Type type;
 
