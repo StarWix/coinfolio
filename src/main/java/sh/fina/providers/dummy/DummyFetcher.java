@@ -76,7 +76,7 @@ public class DummyFetcher implements Fetcher<DummyFetcher.Meta> {
                         .note("Buy bitcoin")
                         .build(),
                 Transaction.builder()
-                        .id(new Transaction.Id("dummy", "3"))
+                        .id(new Transaction.Id("dummy", "3", config.getId()))
                         .actions(List.of(
                                 Action.builder()
                                         .sender(new Subject("dummy", accountId))

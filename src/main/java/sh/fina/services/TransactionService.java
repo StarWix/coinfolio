@@ -99,11 +99,18 @@ public class TransactionService {
             transaction.setFetcherType(fetcher.getType());
             for (final Action action : transaction.getActions()) {
                 action.setTransaction(transaction);
-                final boolean isSender = fetcher.owns(action.getSender());
-                final boolean isRecipient = fetcher.owns(action.getRecipient());
+
+                final boolean isSender = action.getSender() != null && fetcher.owns(action.getSender());
+                final boolean isRecipient = action.getRecipient() != null && fetcher.owns(action.getRecipient());
+
                 action.setDirection(Action.Direction.resolve(isSender, isRecipient));
-                action.getSender().setProviderConfigId(isSender ? fetcher.getProviderConfigId() : null);
-                action.getRecipient().setProviderConfigId(isRecipient ? fetcher.getProviderConfigId() : null);
+
+                if (action.getSender() != null) {
+                    action.getSender().setProviderConfigId(isSender ? fetcher.getProviderConfigId() : null);
+                }
+                if (action.getRecipient() != null) {
+                    action.getRecipient().setProviderConfigId(isRecipient ? fetcher.getProviderConfigId() : null);
+                }
             }
         }
         try {
